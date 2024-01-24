@@ -1,4 +1,4 @@
-### Hi there 👋
+### 나중에 수정할거임
 
 <!--
 **sidcatkr/sidcatkr** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
