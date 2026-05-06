@@ -6,6 +6,3 @@
 ![](https://github-readme-stats.vercel.app/api?username=sidcatkr&theme=radical&hide_border=false&include_all_commits=true&count_private=true)<br/>
 ![](https://github-readme-streak-stats.herokuapp.com/?user=sidcatkr&theme=radical&hide_border=false)<br/>
 ![](https://github-readme-stats.vercel.app/api/top-langs/?username=sidcatkr&theme=radical&hide_border=false&include_all_commits=true&count_private=true&layout=compact)
-# BOJ
-[![Solved.ac
-프로필](http://mazassumnida.wtf/api/v2/generate_badge?boj=sidcatkr)](https://solved.ac/sidcatkr)
