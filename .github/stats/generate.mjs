@@ -127,39 +127,59 @@ async function countAllBranchCommits(username, authorId, affiliations) {
     after = hasNextPage ? endCursor : null;
   } while (after);
 
+  console.log(`커밋 집계 대상 레포 ${repos.length}개`);
   const seen = new Set();
+  let done = 0;
 
-  for (const repo of repos) {
+  // 레포 하나를 모든 branch 기준으로 센다. 실패한 레포는 경고만 남기고 건너뛴다.
+  async function countRepo(repo) {
+    const full = `${repo.owner.login}/${repo.name}`;
     const base = { owner: repo.owner.login, name: repo.name, authorId };
-    let refAfter = null;
+    let found = 0;
+    try {
+      let refAfter = null;
+      do {
+        const { repository } = await gql(BRANCH_QUERY, { ...base, after: refAfter });
+        if (!repository) break; // 접근 권한이 없는 레포
+        const { nodes, pageInfo } = repository.refs;
 
-    do {
-      const { repository } = await gql(BRANCH_QUERY, { ...base, after: refAfter });
-      if (!repository) break; // 접근 권한이 없는 레포는 건너뜀
-      const { nodes, pageInfo } = repository.refs;
-
-      for (const branch of nodes) {
-        const history = branch.target?.history;
-        if (!history) continue;
-        history.nodes.forEach((n) => seen.add(n.oid));
-
-        // 한 branch 에 내 커밋이 100개를 넘으면 나머지 페이지를 이어서 가져옴
-        let cursor = history.pageInfo.hasNextPage ? history.pageInfo.endCursor : null;
-        while (cursor) {
-          const data = await gql(BRANCH_HISTORY_QUERY, {
-            ...base,
-            branch: `refs/heads/${branch.name}`,
-            after: cursor,
+        for (const branch of nodes) {
+          const history = branch.target?.history;
+          if (!history) continue;
+          history.nodes.forEach((n) => {
+            if (!seen.has(n.oid)) found++;
+            seen.add(n.oid);
           });
-          const h = data.repository?.ref?.target?.history;
-          if (!h) break;
-          h.nodes.forEach((n) => seen.add(n.oid));
-          cursor = h.pageInfo.hasNextPage ? h.pageInfo.endCursor : null;
+
+          // 한 branch 에 내 커밋이 100개를 넘으면 나머지 페이지를 이어서 가져옴
+          let cursor = history.pageInfo.hasNextPage ? history.pageInfo.endCursor : null;
+          while (cursor) {
+            const data = await gql(BRANCH_HISTORY_QUERY, { ...base, branch: `refs/heads/${branch.name}`, after: cursor });
+            const h = data.repository?.ref?.target?.history;
+            if (!h) break;
+            h.nodes.forEach((n) => {
+              if (!seen.has(n.oid)) found++;
+              seen.add(n.oid);
+            });
+            cursor = h.pageInfo.hasNextPage ? h.pageInfo.endCursor : null;
+          }
         }
-      }
-      refAfter = pageInfo.hasNextPage ? pageInfo.endCursor : null;
-    } while (refAfter);
+        refAfter = pageInfo.hasNextPage ? pageInfo.endCursor : null;
+      } while (refAfter);
+      console.log(`[${++done}/${repos.length}] ${full}: +${found}`);
+    } catch (err) {
+      console.warn(`[${++done}/${repos.length}] ${full}: 건너뜀 (${err.message.slice(0, 200)})`);
+    }
   }
+
+  // 동시에 4개씩 처리해서 레포가 많아도 오래 걸리지 않게 한다
+  const queue = [...repos];
+  await Promise.all(
+    Array.from({ length: Math.min(4, queue.length) }, async () => {
+      while (queue.length) await countRepo(queue.shift());
+    }),
+  );
+  console.log(`커밋 합계 ${seen.size}개 (모든 branch, SHA 중복 제거)`);
   return seen.size;
 }
 
@@ -206,6 +226,8 @@ async function fetchRealData(username, commitAffiliations) {
     const { hasNextPage, endCursor } = user.repositories.pageInfo;
     after = hasNextPage ? endCursor : null;
   } while (after);
+
+  console.log(`레포 정보 수집 완료: stars ${stars}, PR ${prs}, issues ${issues}`);
 
   // 2) 연도별 기여 내역
   const firstYear = new Date(createdAt).getUTCFullYear();
