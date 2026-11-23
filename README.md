@@ -1,4 +1,4 @@
-# 정민 (sidcatkr)
+# sidcatkr
 
 Founder of **[Lunive](https://lunive.app)**. CS student at Konkuk University, HCI Lab.<br>
 Building Cadenza and Placery. Programming since 2018.
