@@ -71,14 +71,3 @@ More at [lunive.app](https://lunive.app).
   <source media="(prefers-color-scheme: dark)" srcset="assets/languages-dark.svg">
   <img alt="Most used languages" src="assets/languages-light.svg" width="100%">
 </picture>
-
-## Snake
-
-A small game ported from [jmin.me](https://jmin.me). Select the board to play.
-
-<a href="https://sidcatkr.github.io/snake/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/snake-dark.svg">
-    <img alt="Snake game preview. Select to play." src="assets/snake-light.svg" width="100%">
-  </picture>
-</a>

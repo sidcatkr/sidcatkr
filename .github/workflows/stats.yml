@@ -31,9 +31,7 @@ jobs:
           # read:user + repo + read:org 권한의 classic PAT 를 STATS_TOKEN 시크릿으로 등록해야
           # 비공개 레포(lunivehq 같은 org 포함)의 모든 branch 커밋까지 집계돼. org 가 SSO 를 쓰면 토큰 승인도 필요해
           GH_TOKEN: ${{ secrets.STATS_TOKEN }}
-        run: |
-          node .github/stats/generate.mjs
-          node .github/stats/snake-card.mjs
+        run: node .github/stats/generate.mjs
 
       - name: Commit changes
         run: |
