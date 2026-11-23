@@ -1,0 +1,30 @@
+{
+  "username": "sidcatkr",
+  "commitRepoAffiliations": [
+    "OWNER",
+    "COLLABORATOR",
+    "ORGANIZATION_MEMBER"
+  ],
+  "maxLanguages": 6,
+  "excludeLanguages": [],
+  "themes": {
+    "light": {
+      "bg": "#ffffff",
+      "border": "#e2dccf",
+      "text": "#141413",
+      "strong": "#0a0a09",
+      "muted": "#5d5a55",
+      "rule": "#d2cbbc",
+      "ink": "20, 20, 19"
+    },
+    "dark": {
+      "bg": "#0b0b0a",
+      "border": "#242321",
+      "text": "#ecebe6",
+      "strong": "#ffffff",
+      "muted": "#a3a09a",
+      "rule": "#2a2826",
+      "ink": "236, 235, 230"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+name: Update profile stats
+
+on:
+  schedule:
+    - cron: "17 3 * * *" # 매일 03:17 UTC
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/stats/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-stats
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate stat cards
+        env:
+          # read:user + repo + read:org 권한의 classic PAT 를 STATS_TOKEN 시크릿으로 등록해야
+          # 비공개 레포(lunivehq 같은 org 포함)의 모든 branch 커밋까지 집계돼. org 가 SSO 를 쓰면 토큰 승인도 필요해
+          GH_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          node .github/stats/generate.mjs
+          node .github/stats/snake-card.mjs
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update profile stats"
+            git push
+          fi
